@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import RequestForm from '@/components/dashboard/RequestForm';
-import RequestListing from '@/components/dashboard/RequestListing';
+import SBUHRequestListing from '@/components/dashboard/SBUHRequestListing';
 import BudgetListing from '@/components/dashboard/BudgetListing';
-import { LayoutDashboard, FileText, List, Wallet } from "lucide-react";
+import { LayoutDashboard, FileText, List, Wallet, ChevronLeft } from "lucide-react";
 import { SBUH_REQUESTS } from '@/lib/mockData';
 
 const SBUHDashboard = () => {
-    const [activeTab, setActiveTab] = useState('budget');
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'budget';
+
+    const setActiveTab = (tabId) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.set('tab', tabId);
+            return next;
+        });
+    };
     
     // Extract customer names from SBUH requests
     const customerNames = SBUH_REQUESTS.map(request => request.customerName);
@@ -15,11 +26,24 @@ const SBUHDashboard = () => {
         <div className="min-h-screen bg-background text-foreground">
             {/* Header */}
             <header className="border-b bg-card">
-                <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-                    <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
-                        <img src="/pulselogo.jpeg" alt="Logo" className="w-full h-full object-cover" />
+                <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        {/* Back Navigation to Home */}
+                        <button
+                            onClick={() => navigate('/')}
+                            className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-900 text-[13px] font-medium transition-colors group"
+                        >
+                            <ChevronLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+                            <span>Home</span>
+                        </button>
+                        <div className="h-4 w-px bg-gray-200" />
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
+                                <img src="/pulselogo.jpeg" alt="Logo" className="w-full h-full object-cover" />
+                            </div>
+                            <h1 className="text-2xl font-bold">SBUH Dashboard</h1>
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-bold"> Dashboard</h1>
                 </div>
 
                 {/* Tabs */}
@@ -84,7 +108,7 @@ const SBUHDashboard = () => {
 
                 {activeTab === 'listing' && (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <RequestListing />
+                        <SBUHRequestListing />
                     </div>
                 )}
             </main>

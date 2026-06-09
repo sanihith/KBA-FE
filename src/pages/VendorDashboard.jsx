@@ -1,9 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import VendorDashboardRequests from '@/components/dashboard/vendor/VendorDashboardRequests';
-import { LayoutDashboard, FileText } from "lucide-react";
+import { LayoutDashboard, FileText, ChevronLeft } from "lucide-react";
 
 const VendorDashboard = () => {
-    const [activeTab, setActiveTab] = useState('requests');
+    const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'requests';
+
+    const setActiveTab = (tabId) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.set('tab', tabId);
+            return next;
+        });
+    };
 
     const NAV_ITEMS = [
         { id: 'requests', label: 'Vendor Requests', icon: FileText },
@@ -13,11 +24,24 @@ const VendorDashboard = () => {
         <div className="min-h-screen bg-background text-foreground">
             {/* Header */}
             <header className="border-b bg-card">
-                <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-                    <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
-                        <img src="/pulselogo.jpeg" alt="Logo" className="w-full h-full object-cover" />
+                <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        {/* Back Navigation to Home */}
+                        <button
+                            onClick={() => navigate('/')}
+                            className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-900 text-[13px] font-medium transition-colors group"
+                        >
+                            <ChevronLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+                            <span>Home</span>
+                        </button>
+                        <div className="h-4 w-px bg-gray-200" />
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
+                                <img src="/pulselogo.jpeg" alt="Logo" className="w-full h-full object-cover" />
+                            </div>
+                            <h1 className="text-2xl font-bold">Vendor Dashboard</h1>
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-bold">Vendor Dashboard</h1>
                 </div>
 
                 {/* Tabs */}

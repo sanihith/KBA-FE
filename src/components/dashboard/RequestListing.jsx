@@ -1,24 +1,47 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import AdvancedSearchBar from './AdvancedSearchBar';
 import RequestDetails from './RequestDetails';
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { BL_BH_REQUESTS } from '@/lib/mockData';
 
 // Mock Data
-const MOCK_DATA = [
-    { id: 'REQ-001', customerName: 'City Hospital', division: 'Pharma', customerExpectation: 80, requestDate: '2024-01-25', region: 'North', speciality: 'Cardiology', location: 'New York', msp: 50000, status: 'Pending', dueDate: '2024-02-01' },
-    { id: 'REQ-002', customerName: 'Metro Clinic', division: 'Surgical', customerExpectation: 95, requestDate: '2024-01-28', region: 'South', speciality: 'Neurology', location: 'Los Angeles', msp: 75000, status: 'Approved', dueDate: '2024-02-02' },
-    { id: 'REQ-003', customerName: 'General Med', division: 'Diagnostics', customerExpectation: 60, requestDate: '2024-01-30', region: 'East', speciality: 'General', location: 'Chicago', msp: 30000, status: 'Rejected', dueDate: '2024-02-03' },
-];
+const MOCK_DATA = BL_BH_REQUESTS;
 
 const RequestListing = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const requestIdParam = searchParams.get('requestId');
     const [filter, setFilter] = useState(null);
-    const [selectedRequest, setSelectedRequest] = useState(null);
+
+    const selectedRequest = requestIdParam ? MOCK_DATA.find(r => r.id === requestIdParam) : null;
+
+    const setSelectedRequest = (request) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            if (request) {
+                next.set('requestId', request.id);
+            } else {
+                next.delete('requestId');
+            }
+            return next;
+        });
+    };
 
     const handleSearch = (searchParams) => {
         console.log("Searching with:", searchParams);
         setFilter(searchParams);
     };
+
+    // Show detail page when a request is selected
+    if (selectedRequest) {
+        return (
+            <RequestDetails
+                request={selectedRequest}
+                onBack={() => setSelectedRequest(null)}
+            />
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -63,26 +86,27 @@ const RequestListing = () => {
                                     onClick={() => setSelectedRequest(row)}
                                 >
                                     <td className="px-4 py-3 font-medium">{row.id}</td>
-                                    <td className="px-4 py-3">C-00{row.id.split('-')[1]}</td>
+                                    <td className="px-4 py-3">{row.customerCode || row.id}</td>
                                     <td className="px-4 py-3">{row.customerName}</td>
                                     <td className="px-4 py-3">{row.division}</td>
                                     <td className="px-4 py-3">{row.region}</td>
                                     <td className="px-4 py-3">{row.speciality}</td>
                                     <td className="px-4 py-3">{row.location}</td>
                                     <td className="px-4 py-3 text-right">₹{row.msp.toLocaleString()}</td>
-                                    <td className="px-4 py-3 text-right">{row.customerExpectation}%</td>
+                                    <td className="px-4 py-3 text-right">{typeof row.customerExpectation === 'number' ? row.customerExpectation.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : row.customerExpectation}</td>
                                     <td className="px-4 py-3">{row.requestDate}</td>
                                     <td className="px-4 py-3">{row.dueDate}</td>
                                     <td className="px-4 py-3">
-                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                                            ${row.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                row.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                                                    'bg-yellow-100 text-yellow-700'}`}>
+                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                            ${row.status === 'APPROVED' || row.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                row.status === 'REJECTED' || row.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                                                    row.status === 'IN PROCESS' ? 'bg-blue-100 text-blue-700' :
+                                                        'bg-yellow-100 text-yellow-700'}`}>
                                             {row.status}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3 text-center">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
                                             <MoreHorizontal className="h-4 w-4" />
                                         </Button>
                                     </td>
@@ -92,11 +116,6 @@ const RequestListing = () => {
                     </table>
                 </div>
             </div>
-
-            <RequestDetails
-                request={selectedRequest}
-                onClose={() => setSelectedRequest(null)}
-            />
         </div>
     );
 };

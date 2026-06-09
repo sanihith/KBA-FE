@@ -1,14 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdvancedSearchBar from '../AdvancedSearchBar';
 import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AcknowledgementDetails from './AcknowledgementDetails';
+import { acknowledgementsApi } from '@/services/api';
 
 const VendorAcknowledgment = () => {
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [acknowledgements, setAcknowledgements] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Load acknowledgements from API
+    useEffect(() => {
+        loadAcknowledgements();
+    }, []);
+
+    const loadAcknowledgements = async () => {
+        try {
+            setLoading(true);
+            const { data, success } = await acknowledgementsApi.getAll();
+            if (success) {
+                setAcknowledgements(data);
+            }
+        } catch (error) {
+            console.error('Failed to load acknowledgements:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (selectedRequest) {
-        return <AcknowledgementDetails onClose={() => setSelectedRequest(null)} />;
+        return <AcknowledgementDetails onClose={() => setSelectedRequest(null)} acknowledgement={selectedRequest} />;
     }
 
     return (
@@ -24,12 +46,12 @@ const VendorAcknowledgment = () => {
                             <tr>
                                 <th className="px-4 py-3 min-w-[30px]"></th>
                                 <th className="px-4 py-3">Request ID</th>
-                                <th className="px-4 py-3">Request...</th>
+                                <th className="px-4 py-3">Request Date</th>
                                 <th className="px-4 py-3">Due Date</th>
                                 <th className="px-4 py-3">Division</th>
                                 <th className="px-4 py-3">Customer Name</th>
                                 <th className="px-4 py-3">Customer Code</th>
-                                <th className="px-4 py-3">Fulfiller...</th>
+                                <th className="px-4 py-3">Fulfiller</th>
                                 <th className="px-4 py-3">Speciality</th>
                                 <th className="px-4 py-3">Vendor Details</th>
                                 <th className="px-4 py-3">Location</th>
@@ -41,27 +63,44 @@ const VendorAcknowledgment = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                            <tr
-                                className="hover:bg-muted/50 transition-colors cursor-pointer"
-                                onClick={() => setSelectedRequest('2-NUC-0107')}
-                            >
-                                <td className="px-4 py-3">
-                                    <input type="checkbox" className="rounded border-gray-300" onClick={(e) => e.stopPropagation()} />
-                                </td>
-                                <td className="px-4 py-3 text-teal-600 font-medium">2-NUC-0107</td>
-                                <td className="px-4 py-3">05/02/2026</td>
-                                <td className="px-4 py-3">25/02/2026</td>
-                                <td className="px-4 py-3">NUCLEUS</td>
-                                <td className="px-4 py-3">M K KAKOTI</td>
-                                <td className="px-4 py-3">2</td>
-                                <td className="px-4 py-3"></td>
-                                <td className="px-4 py-3">GENERAL PRACTITIO...</td>
-                                <td className="px-4 py-3 text-teal-600">1 record</td>
-                                <td className="px-4 py-3">NUC-BONGAIGA...</td>
-                                <td className="px-4 py-3">ASSAM</td>
-                                <td className="px-4 py-3">1.00</td>
-                                <td className="px-4 py-3 uppercase text-xs font-bold text-muted-foreground">PROCESSED BY AD...</td>
-                            </tr>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={14} className="px-4 py-8 text-center text-muted-foreground">
+                                        Loading acknowledgements...
+                                    </td>
+                                </tr>
+                            ) : acknowledgements.length === 0 ? (
+                                <tr>
+                                    <td colSpan={14} className="px-4 py-8 text-center text-muted-foreground">
+                                        No acknowledgements found
+                                    </td>
+                                </tr>
+                            ) : (
+                                acknowledgements.map((ack) => (
+                                    <tr
+                                        key={ack.id}
+                                        className="hover:bg-muted/50 transition-colors cursor-pointer"
+                                        onClick={() => setSelectedRequest(ack)}
+                                    >
+                                        <td className="px-4 py-3">
+                                            <input type="checkbox" className="rounded border-gray-300" onClick={(e) => e.stopPropagation()} />
+                                        </td>
+                                        <td className="px-4 py-3 text-teal-600 font-medium">{ack.requestId}</td>
+                                        <td className="px-4 py-3">{ack.requestDate}</td>
+                                        <td className="px-4 py-3">{ack.dueDate}</td>
+                                        <td className="px-4 py-3">{ack.division}</td>
+                                        <td className="px-4 py-3">{ack.customerName}</td>
+                                        <td className="px-4 py-3">{ack.customerCode}</td>
+                                        <td className="px-4 py-3"></td>
+                                        <td className="px-4 py-3">{ack.speciality?.substring(0, 20)}...</td>
+                                        <td className="px-4 py-3 text-teal-600">{ack.vendors?.length || 0} record{ack.vendors?.length !== 1 ? 's' : ''}</td>
+                                        <td className="px-4 py-3">{ack.location?.substring(0, 15)}...</td>
+                                        <td className="px-4 py-3">{ack.region}</td>
+                                        <td className="px-4 py-3">{ack.value?.toFixed(2)}</td>
+                                        <td className="px-4 py-3 uppercase text-xs font-bold text-muted-foreground">{ack.status?.substring(0, 20)}...</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

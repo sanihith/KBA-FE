@@ -1,14 +1,27 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
-const CancellationRequestDetails = ({ onClose }) => {
+const CancellationRequestDetails = ({ onClose, cancellationRequest }) => {
+    if (!cancellationRequest) {
+        return null;
+    }
+
+    const data = cancellationRequest;
+
     return (
         <div className="bg-background animate-in slide-in-from-right duration-300">
-            {/* Header / Breadcrumb */}
-            <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
-                <button onClick={onClose} className="hover:text-foreground text-teal-600">Cancellation Requests</button>
-                <span>/</span>
-                <span className="text-foreground font-medium">2-NUC-0107</span>
+            {/* Header / Back nav */}
+            <div className="flex items-center gap-2 mb-6">
+                <button
+                    onClick={onClose}
+                    className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-900 text-[13px] font-medium transition-colors group"
+                >
+                    <ChevronLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+                    <span>Back</span>
+                </button>
+                <span className="text-gray-300 text-sm"></span>
+                <span className="text-gray-800 text-sm font-semibold"></span>
             </div>
 
             {/* Title Section */}
@@ -23,49 +36,49 @@ const CancellationRequestDetails = ({ onClose }) => {
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Description <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm font-medium text-blue-600 hover:underline cursor-pointer">M K KAKOTI</span>
+                        <span className="text-sm font-medium text-blue-600 hover:underline cursor-pointer">{data.description}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Division <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">NUCLEUS</span>
+                        <span className="text-sm">{data.division}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Location <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">NUC-BONGAIGAON</span>
+                        <span className="text-sm">{data.location}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Region <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">ASSAM</span>
+                        <span className="text-sm">{data.region}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Customer Code <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">2</span>
+                        <span className="text-sm">{data.customerCode}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Status <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm uppercase">CANCELLATION INITIATED</span>
+                        <span className="text-sm uppercase">{data.status}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Service Amount <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">1.0</span>
+                        <span className="text-sm">{typeof data.serviceAmount === 'number' ? data.serviceAmount.toFixed(2) : data.serviceAmount}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Remarks <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm"></span>
+                        <span className="text-sm">{data.remarks || '-'}</span>
                     </div>
                 </div>
 
@@ -75,25 +88,25 @@ const CancellationRequestDetails = ({ onClose }) => {
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Request ID <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">2-NUC-0107</span>
+                        <span className="text-sm">{data.requestId}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Request Date <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">05/02/2026</span>
+                        <span className="text-sm">{data.requestDate}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Due Date <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">25/02/2026</span>
+                        <span className="text-sm">{data.dueDate}</span>
                     </div>
                     <div className="grid grid-cols-[140px_1fr] items-baseline">
                         <span className="text-xs font-bold text-muted-foreground uppercase flex gap-1">
                             Speciality <span className="text-blue-500">?</span>
                         </span>
-                        <span className="text-sm">GENERAL PRACTITIONER</span>
+                        <span className="text-sm">{data.speciality}</span>
                     </div>
                 </div>
             </div>

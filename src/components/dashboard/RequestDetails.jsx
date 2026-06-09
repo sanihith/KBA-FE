@@ -1,75 +1,182 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { ArrowUpDown, Download, ChevronLeft } from "lucide-react";
 
-const RequestDetails = ({ request, onClose }) => {
+// A single two-column label → value row
+const DetailRow = ({ label, value, isLink = false }) => (
+    <div className="grid grid-cols-[200px_1fr] items-start py-1.5 gap-2">
+        <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider leading-5 shrink-0">
+            {label}
+        </span>
+        <span
+            className={`text-[13px] font-medium uppercase leading-5 break-words ${
+                isLink ? 'text-teal-600 cursor-pointer hover:underline' : 'text-gray-800'
+            }`}
+        >
+            {value || '-'}
+        </span>
+    </div>
+);
+
+// Attachment row – shows download icon + file size when an attachment exists
+const AttachmentRow = ({ label, attachment }) => (
+    <div className="grid grid-cols-[200px_1fr] items-center py-1.5 gap-2">
+        <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider shrink-0">
+            {label}
+        </span>
+        <div>
+            {attachment ? (
+                <a
+                    href={attachment.url || '#'}
+                    className="inline-flex items-center gap-1.5 text-teal-600 hover:text-teal-700 text-[13px] font-medium transition-colors"
+                    download
+                >
+                    <Download size={13} className="shrink-0" />
+                    {attachment.size}
+                </a>
+            ) : (
+                <span className="text-gray-300 text-[13px]">—</span>
+            )}
+        </div>
+    </div>
+);
+
+const RequestDetails = ({ request, onBack }) => {
+    const navigate = useNavigate();
     if (!request) return null;
 
+    const fmt = (n) =>
+        typeof n === 'number'
+            ? n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : n || '-';
+
+    const salesPlan = request.monthlySalesPlan || [];
+    const attachments = request.attachments || [];
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-background w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl border animate-in zoom-in-95 duration-200">
-                {/* Header */}
-                <div className="flex items-center justify-between border-b px-6 py-4 sticky top-0 bg-background z-10">
-                    <div>
-                        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">sbuh requests</h2>
-                        <div className="flex items-center gap-2 mt-1">
-                            <h3 className="text-xl font-bold uppercase text-primary">{request.customerName}</h3>
-                            <span className="text-muted-foreground">•</span>
-                            <span className="text-sm text-muted-foreground">Settings Icon Placeholder</span>
-                        </div>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
-                        <X className="h-5 w-5" />
-                    </Button>
+        <div className="bg-white min-h-screen flex flex-col animate-in fade-in duration-300 font-sans">
+
+            {/* Header / Back nav */}
+            <div className="border-b border-gray-100 px-8 py-4 flex items-center gap-4 sticky top-0 bg-white z-10">
+                <button
+                    onClick={() => navigate('?tab=listing')}
+                    className="inline-flex items-center gap-1.5 text-gray-500 hover:text-gray-900 text-[13px] font-medium transition-colors group"
+                >
+                    <ChevronLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+                    <span>Request Listing</span>
+                </button>
+                <div className="h-4 w-px bg-gray-200" />
+                <div className="flex items-center gap-1 text-sm">
+                    <span className="text-gray-400 font-medium">Request Listing /</span>
+                    <span className="text-gray-800 font-semibold">{request.id}</span>
                 </div>
+            </div>
 
-                {/* Content */}
-                <div className="p-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                        {/* Left Column */}
-                        <div className="space-y-6">
-                            <DetailRow label="Doctor Name" value={request.customerName} />
-                            <DetailRow label="Speciality" value={request.speciality} />
-                            <DetailRow label="Customer Code" value={request.customerCode || "18094"} />
-                            <DetailRow label="Location" value={request.location || "NUC-ELURU"} />
-                            <DetailRow label="Region" value={request.region || "ANDHRA PRADESH"} />
-                            <DetailRow label="Division" value={request.division || "NUCLEUS"} />
-                            <DetailRow label="Available Budget Amount" value="43,55,000.00" />
-                            <DetailRow label="Regional Available Budget" value="3,00,000.00" />
-                            <DetailRow label="Admin Remarks" value="will be processed" />
-                            <DetailRow label="Doctor's Reference" value={request.customerName} />
+            {/* ── Main scrollable content ── */}
+            <div className="flex-1 overflow-y-auto">
+                <div className="max-w-5xl w-full mx-auto px-10 py-8 space-y-0">
+
+                    {/* ── Section: REQUEST FORM ── */}
+                    <div>
+                        {/* Section header */}
+                        <div className="border-b border-gray-200 pb-2 mb-6">
+                            <h2 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                                Request Form
+                            </h2>
                         </div>
 
-                        {/* Right Column */}
-                        <div className="space-y-6">
-                            <DetailRow label="Request ID" value={request.id} />
-                            <DetailRow label="Request Date" value={request.requestDate || "29/01/2026"} />
-                            <DetailRow label="Due Date" value={request.dueDate || "10/02/2026"} />
-                            <DetailRow label="Expected Due Date" value={request.expectedDueDate || "09/02/2026"} />
+                        {/* Top fields */}
+                        <div className="space-y-0 mb-4">
+                            <DetailRow label="Request ID"           value={request.id} />
+                            <DetailRow label="Customer-Name"        value={request.customerName} isLink />
+                            <DetailRow label="Customer-Code"        value={request.customerCode} />
+                            <DetailRow label="Speciality"           value={request.speciality} />
+                            <DetailRow label="Division"             value={request.division} />
+                            <DetailRow label="Region"               value={request.region} />
+                            <DetailRow
+                                label="Customer Expectation"
+                                value={fmt(request.customerExpectation)}
+                            />
+                        </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <span className="text-sm font-semibold text-muted-foreground uppercase">Status</span>
-                                <span className="text-sm font-medium uppercase">{request.status || "ENROLLED"}</span>
+                        {/* Monthly Sales Plan table */}
+                        <div className="grid grid-cols-[200px_1fr] items-start mb-4">
+                            <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider pt-3 shrink-0">
+                                Monthly Sales Plan
+                            </span>
+                            <div>
+                                <table className="w-full text-[13px] text-left">
+                                    <thead className="border-b border-gray-200">
+                                           <tr className="text-[11px] font-bold text-gray-800 uppercase tracking-wider">
+                                            <th className="py-3 pr-4 font-bold">Brand</th>
+                                            <th className="py-3 px-4 text-right font-bold">PTS</th>
+                                            <th className="py-3 px-4 text-right font-bold">Units</th>
+                                            <th className="py-3 px-4 text-right font-bold">Amount</th>
+                                            <th className="py-3 pl-4 font-bold flex items-center gap-1">
+                                                RX Status
+                                                <ArrowUpDown size={11} className="text-gray-400 ml-1" />
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {salesPlan.length > 0 ? salesPlan.map((row, i) => (
+                                            <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="py-2.5 pr-4 font-medium text-gray-800 uppercase">
+                                                    {row.brand}
+                                                </td>
+                                                <td className="py-2.5 px-4 text-right text-gray-700 font-mono">
+                                                    {fmt(row.pts)}
+                                                </td>
+                                                <td className="py-2.5 px-4 text-right text-gray-700">
+                                                    {row.units}
+                                                </td>
+                                                <td className="py-2.5 px-4 text-right text-teal-600 font-medium font-mono">
+                                                    {fmt(row.amount)}
+                                                </td>
+                                                <td className="py-2.5 pl-4 text-gray-400">—</td>
+                                            </tr>
+                                        )) : (
+                                            <tr>
+                                                <td colSpan={5} className="py-4 text-center text-gray-300 text-[12px]">
+                                                    No sales plan data
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+
+                                {/* Divider below table */}
+                                <div className="border-b border-gray-100 mt-2 mb-4" />
+                            </div>
+                        </div>
+
+                        {/* Bottom fields */}
+                        <div className="space-y-0">
+                            <DetailRow label="Monthly Sales Plan"  value={fmt(request.monthlyPlan)} />
+                            <DetailRow label="From Date"           value={request.fromDate} />
+                            <DetailRow label="To Date"             value={request.toDate} />
+                            <DetailRow label="Total MSP"           value={fmt(request.totalMsp)} />
+                            <DetailRow label="Request Date"        value={request.requestDate} />
+                            <DetailRow label="Due Date"            value={request.dueDate} />
+
+                            {/* Description with small superscript hint */}
+                            <div className="grid grid-cols-[200px_1fr] items-start py-1.5 gap-2">
+                                <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider leading-5 shrink-0 flex items-center gap-0.5">
+                                    Description
+                                    <sup className="text-[9px] text-gray-400 font-normal">?</sup>
+                                </span>
+                                <span className="text-[13px] font-medium leading-5 text-gray-800 break-words normal-case">
+                                    {request.description || '-'}
+                                </span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <span className="text-sm font-bold text-foreground uppercase">Customer Expectation</span>
-                                <span className="text-sm font-medium">{request.customerExpectation ? request.customerExpectation.toLocaleString() : "25,000.00"}</span>
-                            </div>
+                            <DetailRow label="Status" value={request.status} />
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <span className="text-sm font-semibold text-muted-foreground uppercase">Commitment Amount</span>
-                                <span className="text-sm font-medium">23,000.00</span>
-                            </div>
-
-                            <div className="pt-8 flex gap-4">
-                                <Button className="bg-[#7e4f7e] hover:bg-[#6a426a] text-white uppercase px-6">
-                                    Approve
-                                </Button>
-                                <Button className="bg-[#7e4f7e] hover:bg-[#6a426a] text-white uppercase px-6" onClick={onClose}>
-                                    Reject
-                                </Button>
-                            </div>
+                            {/* Attachments */}
+                            <AttachmentRow label="Attachment 1" attachment={attachments[0]} />
+                            <AttachmentRow label="Attachment 2" attachment={attachments[1]} />
+                            <AttachmentRow label="Attachment 3" attachment={attachments[2]} />
                         </div>
                     </div>
                 </div>
@@ -77,12 +184,5 @@ const RequestDetails = ({ request, onClose }) => {
         </div>
     );
 };
-
-const DetailRow = ({ label, value }) => (
-    <div className="grid grid-cols-2 gap-4 items-start">
-        <span className="text-sm font-semibold text-muted-foreground uppercase">{label}</span>
-        <span className="text-sm font-medium uppercase break-words">{value}</span>
-    </div>
-);
 
 export default RequestDetails;

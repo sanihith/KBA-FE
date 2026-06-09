@@ -4,72 +4,135 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X, ArrowUpDown } from "lucide-react";
 import GiftVoucherModal from './GiftVoucherModal';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
-const AddVendorModal = ({ onClose }) => {
+const EXISTING_VENDORS = [
+    'BLUEDART EXPRESS',
+    'DHL LOGISTICS',
+    'FEDEX INDIA',
+    'DTDC COURIER',
+    'ECOM EXPRESS LTD'
+];
+
+const EXISTING_SERVICES = [
+    'TRAVEL - FLIGHT',
+    'TRAVEL - TRAIN',
+    'TRAVEL - CAR',
+    'GIFT CARD',
+    'PURCHASE',
+    'CHEQUE',
+    'CASH'
+];
+
+const AddVendorModal = ({ onClose, onSave }) => {
     const [showGiftVoucherModal, setShowGiftVoucherModal] = React.useState(false);
+    const [vendorData, setVendorData] = React.useState({
+        name: '',
+        email: '',
+        type: '',
+        amount: '0.00'
+    });
+
+    const handleSave = (closeAfter = true) => {
+        if (!vendorData.name) return;
+        onSave(vendorData);
+        if (closeAfter) {
+            onClose();
+        } else {
+            setVendorData({ name: '', email: '', type: '', amount: '0.00' });
+        }
+    };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-background w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl border animate-in zoom-in-95 duration-200 flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-sm shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200 flex flex-col">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b px-6 py-4 sticky top-0 bg-background z-10">
-                    <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">Create ADD VENDOR</h2>
-                    <Button variant="ghost" size="icon" onClick={onClose}>
+                <div className="flex items-center justify-between border-b px-6 py-4 sticky top-0 bg-white z-10">
+                    <h2 className="text-xs font-bold text-gray-800 uppercase tracking-widest">Create ADD VENDOR</h2>
+                    <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-400 hover:text-gray-600">
                         <X className="h-5 w-5" />
                     </Button>
                 </div>
 
                 {/* Content */}
-                <div className="p-8 space-y-8 flex-1">
-                    <div className="grid grid-cols-[150px_1fr] gap-6">
-                        <Label className="uppercase text-xs font-bold text-muted-foreground pt-3">Vendor Name</Label>
+                <div className="p-10 space-y-8 flex-1">
+                    <div className="grid grid-cols-[180px_1fr] gap-12 items-center">
+                        <Label className="uppercase text-[11px] font-bold text-gray-700 tracking-wider">Vendor Name</Label>
+                        <Select value={vendorData.name} onValueChange={(val) => setVendorData(p => ({...p, name: val}))}>
+                            <SelectTrigger className="border-0 border-b rounded-none px-0 h-8 focus:ring-0 focus:border-teal-600 border-teal-600/30 bg-transparent text-teal-600 font-medium uppercase text-[13px] shadow-none">
+                                <SelectValue placeholder="Select vendor..." />
+                            </SelectTrigger>
+                            <SelectContent className="z-[110]">
+                                {EXISTING_VENDORS.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="grid grid-cols-[180px_1fr] gap-12 items-center">
+                        <Label className="uppercase text-[11px] font-bold text-gray-700 tracking-wider">Balance</Label>
+                        <div className="text-[13px] text-gray-800 font-bold">0.00</div>
+                    </div>
+
+                    <div className="grid grid-cols-[180px_1fr] gap-12 items-center">
+                        <Label className="uppercase text-[11px] font-bold text-gray-700 tracking-wider">Vendor Email</Label>
                         <div>
-                            <Input className="border-0 border-b rounded-none px-0 focus-visible:ring-0 focus-visible:border-teal-600 border-teal-600/50 bg-transparent text-teal-600" />
+                            <Input 
+                                value={vendorData.email}
+                                onChange={(e) => setVendorData(p => ({...p, email: e.target.value}))}
+                                className="border-0 border-b rounded-none px-0 h-8 focus-visible:ring-0 focus-visible:border-teal-600 border-gray-200 bg-transparent text-[13px]" 
+                                placeholder="vendor@example.com"
+                            />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-[150px_1fr] gap-6">
-                        <Label className="uppercase text-xs font-bold text-muted-foreground pt-3">Balance</Label>
-                        <div className="pt-2 text-sm text-foreground">0.00</div>
+                    <div className="grid grid-cols-[180px_1fr] gap-12 items-center">
+                        <Label className="uppercase text-[11px] font-bold text-gray-700 tracking-wider">Type of Service</Label>
+                        <Select value={vendorData.type} onValueChange={(val) => setVendorData(p => ({...p, type: val}))}>
+                            <SelectTrigger className="border-0 border-b rounded-none px-0 h-8 focus:ring-0 focus:border-teal-600 border-gray-200 bg-transparent uppercase text-[13px] shadow-none">
+                                <SelectValue placeholder="Select service type..." />
+                            </SelectTrigger>
+                            <SelectContent className="z-[110]">
+                                {EXISTING_SERVICES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
                     </div>
 
-                    <div className="grid grid-cols-[150px_1fr] gap-6">
-                        <Label className="uppercase text-xs font-bold text-muted-foreground pt-3">Vendor Email</Label>
+                    <div className="grid grid-cols-[180px_1fr] gap-12 items-center">
+                        <Label className="uppercase text-[11px] font-bold text-gray-700 tracking-wider">Voucher Amount</Label>
                         <div>
-                            <Input className="border-0 border-b rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary border-primary/50 bg-transparent" />
+                            <Input 
+                                type="number"
+                                value={vendorData.amount}
+                                onChange={(e) => setVendorData(p => ({...p, amount: e.target.value}))}
+                                className="border-0 border-b rounded-none px-0 h-8 focus-visible:ring-0 focus-visible:border-teal-600 border-gray-200 bg-transparent text-[13px] font-bold" 
+                            />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-[150px_1fr] gap-6">
-                        <Label className="uppercase text-xs font-bold text-muted-foreground pt-3">Type of Service</Label>
-                        <div>
-                            <Input className="border-0 border-b rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary border-primary/50 bg-transparent" />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-[150px_1fr] gap-6">
-                        <Label className="uppercase text-xs font-bold text-muted-foreground pt-3">Voucher Amount</Label>
-                        <div className="pt-2 text-sm text-foreground">0.00</div>
-                    </div>
-
-                    {/* Sub Table */}
-                    <div className="grid grid-cols-[150px_1fr] gap-6 pt-4">
-                        <Label className="uppercase text-xs font-bold text-muted-foreground pt-3">Gift Vouchers</Label>
-                        <div>
+                    {/* Sub Table (Static for now as per design) */}
+                    <div className="grid grid-cols-[180px_1fr] gap-12 pt-4">
+                        <Label className="uppercase text-[11px] font-bold text-gray-500 tracking-wider">Gift Vouchers</Label>
+                        <div className="border rounded-sm overflow-hidden border-gray-100">
                             <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="text-left py-2 font-bold text-muted-foreground uppercase text-xs">Gift Card Number</th>
-                                        <th className="text-right py-2 font-bold text-muted-foreground uppercase text-xs flex items-center justify-end gap-1">
-                                            Amount <ArrowUpDown size={12} />
+                                <thead className="bg-[#f8f9fa]">
+                                    <tr className="border-b border-gray-100">
+                                        <th className="text-left px-6 py-3 font-bold text-gray-600 uppercase text-[10px] tracking-widest">Gift Card Number</th>
+                                        <th className="text-right px-6 py-3 font-bold text-gray-600 uppercase text-[10px] tracking-widest flex items-center justify-end gap-1">
+                                            Amount <ArrowUpDown size={12} className="text-gray-400" />
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y">
-                                    <tr className="hover:bg-muted/50">
-                                        <td className="py-2">
+                                <tbody className="divide-y divide-gray-50">
+                                    <tr className="hover:bg-gray-50">
+                                        <td className="px-6 py-3">
                                             <button
-                                                className="text-teal-600 hover:text-teal-700 text-sm font-medium"
+                                                className="text-teal-600 hover:text-teal-700 text-[11px] font-bold uppercase tracking-wider"
                                                 onClick={() => setShowGiftVoucherModal(true)}
                                             >
                                                 Add a line
@@ -79,22 +142,29 @@ const AddVendorModal = ({ onClose }) => {
                                     </tr>
                                 </tbody>
                             </table>
-                            {/* Empty rows as per screenshot */}
-                            <div className="border-b h-10"></div>
-                            <div className="border-b h-10"></div>
                         </div>
                     </div>
                 </div>
 
                 {/* Footer */}
-                <div className="border-t p-4 px-8 sticky bottom-0 bg-background z-10 flex gap-2">
-                    <Button className="bg-[#7e4f7e] hover:bg-[#6a426a] text-white">
+                <div className="border-t p-6 px-10 flex gap-2">
+                    <Button 
+                        onClick={() => handleSave(true)}
+                        className="bg-[#6b4260] hover:bg-[#5a3751] text-white uppercase font-bold text-[10px] px-8 h-8 rounded-sm shadow-sm transition-all active:scale-95"
+                    >
                         Save & Close
                     </Button>
-                    <Button className="bg-[#7e4f7e] hover:bg-[#6a426a] text-white">
+                    <Button 
+                        onClick={() => handleSave(false)}
+                        className="bg-[#6b4260] hover:bg-[#5a3751] text-white uppercase font-bold text-[10px] px-8 h-8 rounded-sm shadow-sm transition-all active:scale-95"
+                    >
                         Save & New
                     </Button>
-                    <Button variant="outline" onClick={onClose}>
+                    <Button 
+                        variant="secondary" 
+                        onClick={onClose}
+                        className="bg-[#e9ecef] hover:bg-[#dee2e6] text-gray-700 border-0 uppercase font-bold text-[10px] px-8 h-8 rounded-sm transition-all active:scale-95"
+                    >
                         Discard
                     </Button>
                 </div>

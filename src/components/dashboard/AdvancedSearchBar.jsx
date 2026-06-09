@@ -67,7 +67,7 @@ const AdvancedSearchBar = ({ onSearch }) => {
                             key={field.id}
                             onClick={() => handleSelectField(field)}
                             className="w-full text-left px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
-                        >
+                        >Doctor 
                             <span className="text-muted-foreground">Search {field.label} for:</span>
                             <span className="font-medium text-foreground">{query}</span>
                         </button>

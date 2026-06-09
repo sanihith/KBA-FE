@@ -72,7 +72,7 @@ const ParallaxLandingPage = () => {
                             </a>
                         ))}
                         <div className="h-6 w-px bg-border mx-2" />
-                        <Link to="/shub-dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">SBUH</Link>
+                        <Link to="/sbuh-dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">SBUH</Link>
                         <Link to="/bl-bh-dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">BL/BH</Link>
                         <Link to="/crm-admin-dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">CRM</Link>
                         <Link to="/finance-dashboard" className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium">Finance</Link>
